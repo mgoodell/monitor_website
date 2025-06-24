@@ -1,0 +1,103 @@
+<!-- templates/index.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Website Monitoring</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body { background: #f8f9fa; }
+        .container { margin-top: 60px; max-width: 700px; }
+        .form-box { background: white; border-radius: 15px; padding: 30px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+        #logBox { height: 300px; overflow-y: auto; background: #fff; border: 1px solid #ccc; padding: 15px; margin-top: 20px; border-radius: 8px; font-family: monospace; font-size: 14px; }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="form-box">
+        <h2 class="text-center mb-4">Website Monitoring</h2>
+        <form method="POST">
+            <div class="mb-3">
+                <label for="url" class="form-label">Website URL</label>
+                <input type="text" class="form-control" id="url" name="url" placeholder="https://example.com" value="{{ url }}" required>
+            </div>
+
+            <div class="mb-3">
+                <label for="interval" class="form-label">Check Interval (seconds)</label>
+                <select class="form-select" id="interval" name="interval">
+                    {% for sec in [10, 20, 30, 40, 50, 60] %}
+                        <option value="{{ sec }}" {% if interval|int == sec %}selected{% endif %}>{{ sec }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="mb-4">
+                <label for="email" class="form-label">Notification Email Address</label>
+                <input type="email" class="form-control" id="email" name="email" placeholder="Enter email" value="{{ notification_email }}">
+            </div>
+
+            <div class="mb-4">
+                <label for="password" class="form-label">Email Password</label>
+                <div class="input-group">
+                    <input type="password" class="form-control" id="password" name="password" placeholder="Enter password" value="{{ email_password }}">
+                    <button type="button" class="btn btn-outline-secondary" onclick="togglePassword()">Show</button>
+                </div>
+            </div>
+
+            <button type="submit" class="btn btn-primary w-100" id="startBtn" {% if success %}style="display:none;"{% endif %}>Start Monitoring</button>
+        </form>
+
+        {% if success %}
+            <form method="POST" action="/stop" class="mt-3">
+                <button type="submit" class="btn btn-danger w-100" id="stopBtn">Stop Monitoring</button>
+            </form>
+
+            <div class="alert alert-success mt-4">
+                Monitoring started. Logs will appear below.
+            </div>
+            <div id="logBox"></div>
+        {% endif %}
+    </div>
+</div>
+
+<script>
+    const logBox = document.getElementById("logBox");
+
+    {% if success %}
+    const eventSource = new EventSource("/stream");
+    eventSource.onmessage = function(event) {
+        const line = document.createElement("div");
+
+        if (event.data.includes(" is UP")) {
+            line.innerHTML = event.data.replace(
+                " is UP",
+                ' <span class="badge bg-success">✅ UP</span>'
+            );
+        } else if (event.data.includes(" is DOWN")) {
+            line.innerHTML = event.data.replace(
+                " is DOWN",
+                ' <span class="badge bg-danger">❌ DOWN</span>'
+            );
+        } else {
+            line.textContent = event.data;
+        }
+
+        logBox.appendChild(line);
+        logBox.scrollTop = logBox.scrollHeight;
+    };
+    {% endif %}
+
+    function togglePassword() {
+        const passwordField = document.getElementById("password");
+        const button = passwordField.nextElementSibling;
+        if (passwordField.type === "password") {
+            passwordField.type = "text";
+            button.textContent = "Hide";
+        } else {
+            passwordField.type = "password";
+            button.textContent = "Show";
+        }
+    }
+</script>
+</body>
+</html>
