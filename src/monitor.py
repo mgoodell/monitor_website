@@ -2,6 +2,11 @@ import requests
 import time
 from src.email_alert import send_alert_email
 
+# 1. It retries up to 3 times with increasing delay (2s, 4s, 8s) before declaring "DOWN".
+# 2. Alerts are still sent once per outage.
+# 3. Helps avoid false alarms due to brief hiccups.
+# 4. Logs UP status on every successful check (per user interval).
+
 def check_website_loop(url, interval, log_queue, email, email_password):
     max_failures = 3
     max_successes = 2
