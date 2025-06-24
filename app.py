@@ -21,7 +21,7 @@ def index():
         url = request.form.get('url', '').strip()
         interval = request.form.get('interval', '60')
         email = request.form.get('email')
-        password = request.form.get('email_password')
+        email_password = request.form.get('email_password')
 
         if not url.startswith("http"):
             url = "https://" + url
