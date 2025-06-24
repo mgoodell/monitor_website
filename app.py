@@ -21,10 +21,21 @@ def index():
         url = request.form.get('url', '').strip()
         interval = request.form.get('interval', '60')
         email = request.form.get('email')
-        email_password = request.form.get('email_password')
+        email_password = request.form.get('password')
 
         if not url.startswith("http"):
             url = "https://" + url
+
+        if not email or not email_password:
+            return render_template(
+                'index.html',
+                success=False,
+                url=url,
+                interval=interval,
+                notification_email=email,
+                email_password=email_password,
+                error="Email and password are required for monitoring alerts."
+            )
 
         t = threading.Thread(target=check_website_loop, args=(url, int(interval), log_queue, email, email_password), daemon=True)
         t.start()

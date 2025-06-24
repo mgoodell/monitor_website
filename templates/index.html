@@ -33,13 +33,13 @@
 
             <div class="mb-4">
                 <label for="email" class="form-label">Notification Email Address</label>
-                <input type="email" class="form-control" id="email" name="email" placeholder="Enter email" value="{{ notification_email }}">
+                <input type="email" class="form-control" id="email" name="email" placeholder="Enter email" value="{{ notification_email or '' }}">
             </div>
 
             <div class="mb-4">
                 <label for="password" class="form-label">Email Password</label>
                 <div class="input-group">
-                    <input type="password" class="form-control" id="password" name="password" placeholder="Enter password" value="{{ email_password }}">
+                    <input type="password" class="form-control" id="password" name="password" placeholder="Enter password" value="{{ email_password or '' }}">
                     <button type="button" class="btn btn-outline-secondary" onclick="togglePassword()">Show</button>
                 </div>
             </div>
